@@ -1,4 +1,3 @@
-
 # my-assistant
 
 Repository for the my-assistant project.
@@ -137,7 +136,7 @@ The system uses **LangGraph** for orchestrating a complex multi-node pipeline wi
 
 **Deployment:**
 - **FastAPI**: REST API for webhook endpoints (`/start_agent_v2`)
-- **Replit**: Cloud hosting and deployment platform
+- **uvicorn**: ASGI server to run the FastAPI application.
 
 ────────────────────────────────
 5. File Structure
@@ -145,19 +144,31 @@ The system uses **LangGraph** for orchestrating a complex multi-node pipeline wi
 ```
 my-assistant/
 ├── src/
-│   ├── main_v2.py              # Main LangGraph pipeline (current version)
-│   ├── main.py                 # Legacy pipeline (v1)
-│   ├── prompts.py              # Centralized prompt templates
-│   ├── astradb_services.py     # Vector database operations
-│   ├── utils.py                # Slack integration utilities
-│   ├── bookingagent_api.py     # FastAPI endpoints
-│   ├── test_pipeline.py        # Interactive testing script
+│   ├── main.py                       # Core LangGraph agent for processing emails.
+│   ├── prompts.py                    # All LLM prompt templates.
+│   │
+│   ├── bookingagent_api.py           # FastAPI server definitions and endpoints.
+│   ├── server.py                     # Script to run the FastAPI server.
+│   │
+│   ├── email_service.py              # Core service for fetching emails (IMAP & Gmail auth).
+│   ├── gmail_service.py              # Extends EmailService for Gmail-specific actions.
+│   ├── google_docs_service.py        # Service for all Google Drive/Docs interactions.
+│   ├── astradb_services.py           # Service for vector database operations (AstraDB).
+│   ├── slack_interactivity.py        # Handlers for interactive Slack components.
+│   ├── utils.py                      # Utility functions, including Slack messaging.
+│   │
+│   ├── attio_service.py              # Client for interacting with the Attio CRM API.
+│   ├── attio_agent.py                # LangGraph agent for Attio-related tasks.
+│   │
 │   └── Test Case/
-│       ├── test_multiple_scenarios.py  # Automated testing
-│       └── test_data.py        # Sample email test cases
-├── README.md
-├── pyproject.toml
-└── .env                        # Environment variables
+│       ├── test_multiple_scenarios.py  # Automated testing for various email scenarios.
+│       └── test_data.py            # Sample email data for tests.
+│
+├── run_assistant.py                  # Main polling script to fetch and process emails.
+├── requirements.txt                  # Python package dependencies.
+├── README.md                         # This file.
+├── .gitignore                        # Specifies intentionally untracked files to ignore.
+└── .env                              # Environment variables (e.g., API keys).
 ```
 
 ────────────────────────────────
@@ -239,18 +250,22 @@ SLACK_BOT_TOKEN=your_slack_token
 SLACK_CHANNEL_ID=your_channel_id
 
 # Make.com Webhooks
+GDRIVE_CLIENT_ROOT_FOLDER_ID=your_gdrive_root_folder_for_clients
 GMAIL_DRAFT_WEBHOOK=your_gmail_webhook
 GDRIVE_FOLDER_WEBHOOK=your_folder_webhook
 GDRIVE_CONTENT_WEBHOOK=your_content_webhook
+
+# Attio CRM
+ATTIO_ACCESS_TOKEN=your_attio_access_token
 ```
 
 **Installation:**
 ```bash
-# Install dependencies
+# Install dependencies from requirements.txt
 pip install -r requirements.txt
 
-# Run tests
-python src/test_pipeline.py
+# To run the automated email polling assistant
+python run_assistant.py
 ```
 
 ────────────────────────────────

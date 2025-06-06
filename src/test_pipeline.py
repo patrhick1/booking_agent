@@ -12,8 +12,8 @@ import json
 # Add the current directory to the path so we can import our modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import the agent from main_v2.py
-from src.main_v2 import graph
+# Import the agent from main.py
+from src.main import graph
 
 def test_agent_pipeline(email_text, subject, sender_name, sender_email):
     """

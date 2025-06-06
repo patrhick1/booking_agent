@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Import the agent from main.py
 from src.main import graph
 # Import the v2 agent for testing
-from src.main_v2 import graph as graph_v2
+from src.main import graph as graph_v2
 
 app = FastAPI(title="Booking Assistant API")
 
