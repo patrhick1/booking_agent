@@ -1,0 +1,89 @@
+entrypoint = "main.py"
+modules = ["python-3.11"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["bash", "iana-etc", "libev", "libxcrypt"]
+
+[unitTest]
+language = "python3"
+
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix"]
+
+[deployment]
+run = ["sh", "-c", "python src/server.py"]
+deploymentTarget = "cloudrun"
+
+[workflows]
+runButton = "Test Multiple Scenarios on v2"
+
+[[workflows.workflow]]
+name = "Run"
+author = 39776920
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python src/main.py"
+
+[[workflows.workflow]]
+name = "Start API Server"
+author = 39776920
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python src/server.py"
+
+[[workflows.workflow]]
+name = "Attio Agent"
+mode = "sequential"
+author = 39776920
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python src/attio_agent.py"
+
+[[workflows.workflow]]
+name = "Attio Util"
+mode = "sequential"
+author = 39776920
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python src/attio_utils.py"
+
+[[workflows.workflow]]
+name = "Attio Test"
+author = 39776920
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python src/attio_test_script.py"
+
+[[workflows.workflow]]
+name = "Test Pipeline"
+author = 39776920
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python src/test_pipeline.py"
+
+[[workflows.workflow]]
+name = "Test Multiple Scenarios on v2"
+mode = "sequential"
+author = 39776920
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python \"src/Test Case/test_multiple_scenarios.py\""
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 5001
