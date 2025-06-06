@@ -23,7 +23,7 @@ from prompts import (
     draft_editing_prompt,
 )
 from utils import send_message, send_interactive_message
-
+from src.google_docs_service import GoogleDocsService
 # Load environment and initialize model, memory, and services
 load_dotenv()
 
@@ -33,6 +33,7 @@ memory = MemorySaver()
 
 model = ChatOpenAI(model="o4-mini-2025-04-16", temperature=1)
 astra_service = AstraDBService()
+google_service = GoogleDocsService()
 
 
 # Define the state shape for the graph
