@@ -3,54 +3,60 @@
 Functions to handle Slack interactive component actions.
 These functions will be triggered based on the action_id in the webhook payload.
 """
-
 import requests
 import logging
+import json
 from typing import Dict, Any
+from src.gmail_service import GmailApiService
 
-# Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def handle_send_out_reply(payload: Dict[str, Any]) -> Dict[str, str]:
     """
     Handler for the 'send-out-reply' action.
-    Sends the edited response back to the email recipient.
-    
-    Args:
-        payload: The parsed Slack webhook payload
-        
-    Returns:
-        Dictionary with status and message
+    Sends the edited response via the Gmail API.
     """
     try:
-        # Extract the edited email content from the payload
-        if "state" in payload and "values" in payload["state"]:
-            for block_id, block_values in payload["state"]["values"].items():
-                for action_id, action_data in block_values.items():
-                    if action_id == "plain_text_input-action" and "value" in action_data:
-                        email_content = action_data["value"]
-                        
-                        # TODO: Implement actual email sending logic here
-                        # This would connect to your email service
-                        logger.info(f"Would send email with content: {email_content[:100]}...")
-                        
-                        return {
-                            "status": "success",
-                            "message": "Your edited response has been sent!"
-                        }
+        # Robustly parse the state values from the Slack payload
+        to_email, subject, body = None, None, None
+        values = payload.get("state", {}).get("values", {})
         
-        return {
-            "status": "error",
-            "message": "Could not find email content in the payload"
-        }
+        for block_id, block_values in values.items():
+            for action_id, action_data in block_values.items():
+                if 'initial_value' in action_data:
+                    # Heuristic to identify fields based on their initial content
+                    if '@' in action_data['initial_value']:
+                        to_email = action_data['value']
+                    else:
+                        subject = action_data['value']
+                elif 'multiline' in action_data and action_data['multiline']:
+                    body = action_data['value']
+
+        if not all([to_email, subject, body]):
+            logger.error("Could not extract all required fields from Slack payload.")
+            return {"status": "error", "message": "Could not parse email details from payload."}
+
+        logger.info(f"Preparing to send email to: {to_email}")
+        
+        # Use the GmailApiService to send the email
+        gmail_service = GmailApiService()
+        status = gmail_service.send_email(to=to_email, subject=subject, body=body)
+        
+        # Update the original Slack message to confirm sending
+        response_url = payload.get("response_url")
+        if response_url:
+            confirmation_message = {
+                "text": f"✅ Email has been sent to {to_email}!",
+                "replace_original": False # Set to True to replace the original message
+            }
+            requests.post(response_url, json=confirmation_message)
+
+        return {"status": "success", "message": f"Email sending process initiated: {status}"}
     
     except Exception as e:
         logger.error(f"Error in handle_send_out_reply: {str(e)}")
-        return {
-            "status": "error",
-            "message": f"Failed to send email: {str(e)}"
-        }
+        return {"status": "error", "message": f"Failed to send email: {str(e)}"}
 
 def handle_attio_campaign(payload: Dict[str, Any]) -> Dict[str, str]:
     """
