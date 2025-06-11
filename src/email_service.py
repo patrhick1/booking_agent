@@ -5,15 +5,12 @@ import email
 from email.header import decode_header
 import os
 import base64
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
+from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 # --- Gmail Configuration ---
 GMAIL_SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
-GMAIL_TOKEN_PATH = 'token.json'
-GMAIL_CREDS_PATH = 'credentials.json'
+SERVICE_ACCOUNT_FILE = 'src/service-account-key.json'
 
 class EmailService:
     """A service to fetch emails from both Gmail and a standard IMAP server."""
@@ -29,19 +26,21 @@ class EmailService:
         self.ignore_sender = "aidrian@podcastguestlaunch.com"
 
     def _get_gmail_service(self):
-        # (This function remains the same as previously discussed)
-        creds = None
-        if os.path.exists(GMAIL_TOKEN_PATH):
-            creds = Credentials.from_authorized_user_file(GMAIL_TOKEN_PATH, GMAIL_SCOPES)
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(GMAIL_CREDS_PATH, GMAIL_SCOPES)
-                creds = flow.run_local_server(port=0)
-            with open(GMAIL_TOKEN_PATH, 'w') as token:
-                token.write(creds.to_json())
-        return build('gmail', 'v1', credentials=creds)
+        """Initialize Gmail service using service account credentials."""
+        if not os.path.exists(SERVICE_ACCOUNT_FILE):
+            raise ValueError(f"Service account file not found: {SERVICE_ACCOUNT_FILE}")
+        
+        # Create credentials from service account file
+        credentials = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=GMAIL_SCOPES)
+        
+        # For domain-wide delegation, you need to specify the user email to impersonate
+        # Get the target email from environment variable
+        target_email = os.getenv('GMAIL_TARGET_EMAIL')
+        if target_email:
+            credentials = credentials.with_subject(target_email)
+        
+        return build('gmail', 'v1', credentials=credentials)
 
     def _should_process_email(self, subject, body, sender_email):
         """Replicates the 'Alive Blockers' filter from Make.com."""

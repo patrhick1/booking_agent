@@ -4,7 +4,7 @@ import os
 from typing import List
 from astrapy import DataAPIClient
 
-from utils import generate_embedding, decode_embedding
+from .utils import generate_embedding, decode_embedding
 
 
 class AstraDBService:

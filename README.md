@@ -246,8 +246,7 @@ ASTRA_DB_API_ENDPOINT=your_astra_endpoint
 ASTRA_DB_APPLICATION_TOKEN=your_astra_token
 
 # Slack
-SLACK_BOT_TOKEN=your_slack_token
-SLACK_CHANNEL_ID=your_channel_id
+SLACK_WEBHOOK_URL=your_slack_url
 
 # Make.com Webhooks
 GDRIVE_CLIENT_ROOT_FOLDER_ID=your_gdrive_root_folder_for_clients

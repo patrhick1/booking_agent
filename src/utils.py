@@ -56,7 +56,7 @@ def send_message(message: str):
     Send a message to Slack using the configured webhook URL.
     Returns the status code from the Slack API response.
     """
-    webhook_url = "https://hooks.slack.com/services/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"
+    webhook_url = os.getenv("SLACK_WEBHOOK_URL")
     payload = {"text": message}
     response = requests.post(webhook_url, json=payload)
     
@@ -89,7 +89,7 @@ def send_interactive_message(message: str, draft: str, sender_email: str = "", s
     Returns:
         The status code from the Slack API response
     """
-    webhook_url = "https://hooks.slack.com/services/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"
+    webhook_url = os.getenv("SLACK_WEBHOOK_URL")
     
     # Debug input parameters
     print("====== SLACK NOTIFICATION DEBUG ======")

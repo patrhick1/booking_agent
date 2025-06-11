@@ -28,7 +28,6 @@ class GoogleDocsService:
                 SERVICE_ACCOUNT_FILE, scopes=SCOPES)
             self.docs_service = build('docs', 'v1', credentials=credentials)
             self.drive_service = build('drive', 'v3', credentials=credentials)
-            print("GoogleDocsService initialized successfully.")
         except Exception as e:
             print(f"Failed to initialize GoogleDocsService: {e}")
             raise
