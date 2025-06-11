@@ -67,7 +67,7 @@ def main_loop():
     print("📧 Gmail Account: aidrian@podcastguestlaunch.com")
     print("📮 Maildoso Account: podcastguestlaunch@maildoso.email")
     print("🔄 Polling Interval: 60 seconds")
-    print("💬 Slack Notifications: ENABLED")
+    print("💬 Slack Notifications: DISABLED")
     print("📝 Gmail Drafts: ENABLED")
     print("="*70)
     
